@@ -5,6 +5,12 @@ body{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: #dcfce7;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.heading{
+    font-weight:bolder;
 }
 .game{
     height: 83vh;
@@ -32,4 +38,195 @@ div.board-cell{
 
 .sign-images{
     height: 100%;
+}
+
+footer{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 8vh;
+    background-color: #bbf7d0;
+    border-top: 1px solid #052e16;
+    z-index: 3;
+}
+
+ul{
+    overflow-y:scroll;
+
+}
+ul li{
+    
+    margin-bottom: 2%;
+    font-size: 20px;
+}
+#Play{
+    background-color: #4ade80;
+    border: none;
+    width: 150px;
+    height: 50px;
+    border-radius: 5px;
+    font-size: 30px;
+    color: #000;
+}
+
+.info-submit{
+    background-color: #bef264;
+    border: none;
+    width: 100px;
+    height: 30px;
+    border-radius: 10px;
+}
+
+.info-form{
+    display: flex;
+    flex-direction: column;
+    gap: 5%;
+}
+.name-input{
+    background-color: #bbf7d0;
+    outline: none;
+    border: none;
+    font-size: 25px;
+    height: 33px;
+    width: 250px;
+    border-radius: 15px;
+    padding: 0 20px;
+}
+
+.name-input:focus{
+    transform: scale(1.1);
+}
+
+.name-input:active{
+    outline: none;
+}
+
+.vs-info{
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-bottom: 40px;
+}
+
+.VS-title{
+    text-align: center;
+    background-color: #fde047;
+    flex: 1;
+}
+
+.red,
+.green{
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.red{
+    height: 100%;
+    flex: 1;
+    background-color: #fca5a5;
+    text-align: center;
+}
+
+.green{
+    height: 100%;
+    flex: 1;
+    background-color: #86efac;
+    text-align: center;
+}
+
+.result{
+    background-color: #fef3c755;
+    border-radius: 30px;
+    text-align: center;
+}
+.winner-title{
+    height: 100vh;
+    font-size: 100px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #f59e0b;
+    gap: 50px;
+}
+
+.result-button-container{
+    display: flex;
+    gap: 150px;
+}
+
+.result-button-container button{
+    width: 100px;
+    height: 40px;
+    border-radius: 15px;
+    border: none;
+    color: 20px;
+    color: white;
+    font-weight: 600;
+}
+
+.home{
+    background-color: #38bdf8;
+}
+
+.rematch{
+    background-color: #8b5cf6;
+}
+
+a h3{
+    color: #052e16;
+}
+
+a,
+a::after{
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+
+
+header{
+    position: relative;
+    width: 100%;
+    height: 10vh;
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 10vw;
+    align-items: center;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+}
+
+.git-hub-logo{
+    height: 40px;
+}
+
+@media screen and (max-width: 450px) {
+    .winner-title{
+        font-size: 50px;
+    }
+    .game-board{
+        width: 300px;
+        height: 300px;
+    }
 }

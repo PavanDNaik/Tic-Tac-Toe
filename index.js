@@ -149,13 +149,16 @@ const gameControler = (function(){
 })();
 
 
-
 function handleStart(){
     gameControler.initGame();
     gameControler.setGameArea(gameArea,InterFace.InfoInterface());
 }
 
 function verifyInfo(player1Name,player2Name){
+    if(player1Name.value == "" || player2Name.value == ""){
+        alert("Please Enter Your names!!");
+        return;
+    }
     gameControler.setPlayer1(player1Name.value,'X','#fca5a5');
     gameControler.setPlayer2(player2Name.value,'O','#86efac');
     gameControler.setGameArea(gameArea,InterFace.BoardInterface());
@@ -170,6 +173,8 @@ const InterFace = (function(){
     }
 
     const InfoInterface = function(){
+        const form = document.createElement("div");
+        form.classList.add("info-form");
         const player1Name = document.createElement("input");
         player1Name.placeholder = "Player1 name";
         player1Name.classList.add("name-input");
@@ -184,10 +189,11 @@ const InterFace = (function(){
         next.classList.add("info-submit");
     
         const infoDiv = document.createElement("div");
-        infoDiv.classList.add("game");
-        infoDiv.appendChild(player1Name);
-        infoDiv.appendChild(player2Name);
-        infoDiv.appendChild(next);
+        form.classList.add("game");
+        form.appendChild(player1Name);
+        form.appendChild(player2Name);
+        form.appendChild(next);
+        infoDiv.appendChild(form);
     
         next.addEventListener("click",()=>{
             verifyInfo(player1Name,player2Name);
@@ -201,7 +207,8 @@ const InterFace = (function(){
         curBoard.classList.add("game-board");
 
         const PlayerInfo = document.createElement("div");
-        PlayerInfo.textContent = gameControler.getPlayer1().name +" VS "+gameControler.getPlayer2().name;
+        PlayerInfo.classList.add("vs-info");
+        PlayerInfo.innerHTML = `<div class="red">${gameControler.getPlayer1().name.toUpperCase()}</div> <h1 class="VS-title">VS</h1> <div class="green">${gameControler.getPlayer2().name.toUpperCase()}</div>`;
         
         for(let i=0;i<gameBoard.row;i++){
             gameBoard.boardBlocks[i] = [];
@@ -225,9 +232,11 @@ const InterFace = (function(){
         const result = document.createElement("div");
         result.classList.add("winner-title");
         
-
+        const buttonContainer = document.createElement("div");
+        buttonContainer.classList.add("result-button-container");
         const home = document.createElement("button");
         home.textContent = "Home";
+        home.classList.add("home");
         home.addEventListener("click",()=>{
             gameControler.initGame();
             gameBoard.resetBoard();
@@ -237,36 +246,38 @@ const InterFace = (function(){
 
         const restart = document.createElement("button");
         restart.textContent = "rematch";
+        restart.classList.add("rematch");
         restart.addEventListener("click",()=>{
             gameBoard.resetBoard();
             gameControler.initGame();
             gameControler.setGameArea(gameArea,BoardInterface());
         });
-        result.textContent = `${resultController.getResult()}`;
+        result.innerHTML = `<div class="result">${resultController.getResult()}<div>`;
         
+        buttonContainer.append(home);
+        buttonContainer.append(restart);
         gameArea.append(result);
-        gameArea.append(home);
-        gameArea.append(restart);
+        result.append(buttonContainer);
 
     }
 
     const fillRow = function(row){
         for(let i=0;i<gameBoard.row;i++){
-            gameBoard.board[row][i].color = "#fcd34d";
+            gameBoard.board[row][i].color = "#fde047";
             gameBoard.boardBlocks[row][i].style.backgroundColor = gameBoard.board[row][i].color;
         }
     }
 
     const fillColumn = function(col){
         for(let i=0;i<gameBoard.row;i++){
-            gameBoard.board[i][col].color = "#fcd34d";
+            gameBoard.board[i][col].color = "#fde047";
             gameBoard.boardBlocks[i][col].style.backgroundColor = gameBoard.board[i][col].color;
         }
     }
 
     const fillDiagonal = function(){
         for(let i=0;i<gameBoard.row;i++){
-            gameBoard.board[i][i].color = "#fcd34d";
+            gameBoard.board[i][i].color = "#fde047";
             gameBoard.boardBlocks[i][i].style.backgroundColor = gameBoard.board[i][i].color;
         }
     }
@@ -274,7 +285,7 @@ const InterFace = (function(){
     const fillAntiDiagonal = function(){
         let size = gameBoard.row;
         for(let i=0;i<gameBoard.row;i++){
-            gameBoard.board[i][size-i-1].color = "#fcd34d";
+            gameBoard.board[i][size-i-1].color = "#fde047";
             gameBoard.boardBlocks[i][size-i-1].style.backgroundColor = gameBoard.board[i][size-i-1].color;
         }
     }
