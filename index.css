@@ -13,7 +13,7 @@ body{
     font-weight:bolder;
 }
 .game{
-    height: 83vh;
+    height: 80vh;
     width: 80vw;
     display: flex;
     flex-direction: column;
@@ -138,10 +138,20 @@ ul li{
     text-align: center;
 }
 
+button:hover{
+    transform: scale(1.02);
+    transform: translateY(-3px);
+}
+
+button:active{
+    transform: translateY(4px);
+    background-color: #4ade80;
+}
 .result{
     background-color: #fef3c755;
     border-radius: 30px;
     text-align: center;
+    font-weight: 600;
 }
 .winner-title{
     height: 100vh;
@@ -151,7 +161,7 @@ ul li{
     left: 0;
     right: 0;
     bottom: 0;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(2px);
     display: flex;
     flex-direction: column;
     justify-content: center;
