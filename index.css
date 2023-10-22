@@ -14,15 +14,22 @@ body{
     align-items: center;
     justify-content: center;
 }
+
 .game-board{
-    height: 80vh;
-    width: 80vw;
-    display: flex;
-    flex-wrap: wrap;
+    width: 400px;
+    height: 400px;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(3,1fr);
 }
-.board-cell{
-    flex: 1;
-    min-width:  30%;
-    min-height: 30%;
+
+div.board-cell{
     border: 1px solid black;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+}
+
+.sign-images{
+    height: 100%;
 }

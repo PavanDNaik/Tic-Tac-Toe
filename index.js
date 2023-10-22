@@ -184,9 +184,7 @@ const InterFace = (function(){
     }
 
     function updateInterface(row,col){
-        gameBoard.boardBlocks[row][col].style.backgroundColor = `${gameBoard.board[row][col].color}`;
-        console.log(gameBoard.board[row][col].color);
-        gameBoard.boardBlocks[row][col].textContent = gameBoard.board[row][col].sign;
+        gameBoard.boardBlocks[row][col].style.background = `url(images/${gameBoard.board[row][col].sign}.svg)`;
     }
     return {InfoInterface,BoardInterface,resultInterface,updateInterface};
 
