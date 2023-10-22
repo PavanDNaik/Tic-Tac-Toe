@@ -1,7 +1,10 @@
 const gameArea = document.getElementById("gameArea");
 const Play = document.getElementById("Play");
 const body = document.getElementsByName("body");
-Play.addEventListener("click",handleStart);
+Play.addEventListener("click",()=>{
+    gameControler.initGame();
+    handleStart();
+});
 
 const getBoard= function(row){
     const board = [];
@@ -30,8 +33,6 @@ const gameBoard = (function(){
         board[row][col].sign = player.sign;
         board[row][col].checked = true;
         board[row][col].color = player.color;
-
-        gameControler.setCurrentPlayer();
     }
 
     function resetBoard(){
@@ -45,6 +46,7 @@ const gameBoard = (function(){
     }
     
     return {row,board,dropSign,resetBoard,boardBlocks};
+
 })();
 
 
@@ -56,14 +58,20 @@ const getPlayer = function(name, sign, color){
 
 const gameControler = (function(){
 
+    let gameOne;
     let player1;
     let player2;
     let currentPlayer;
 
     function initGame(){
         currentPlayer = player1;
-
+        gameOne = true;
     }
+
+    function stopGameOn(){
+        gameOne = false;
+    }
+
     function setPlayer1(name,sign,color){
         player1 = getPlayer(name,sign,color);
         currentPlayer = player1;
@@ -107,22 +115,36 @@ const gameControler = (function(){
     }
 
     function playRound(row,col){
-        if(gameBoard.board[row][col].checked ){
+        if(!gameOne || gameBoard.board[row][col].checked ){
             return;
         }
+        
         gameBoard.dropSign(row,col,getCurrentPlayer());
         InterFace.updateInterface(row,col);
 
         if(resultController.checkForWin(row,col)){
-            console.log("win");
+            gameControler.stopGameOn();
+            resultController.setWinner(gameControler.getCurrentPlayer());
+            
+            InterFace.resultInterface();
         }
         else if(resultController.checkForDraw()){
-            console.log("draw");
+            gameControler.stopGameOn();
+            resultController.setWinner(undefined);
+            InterFace.resultInterface();
         }
 
+        setCurrentPlayer();
     }
 
-    return {getPlayer1,getPlayer2,setPlayer1,setPlayer2,playRound,getCurrentPlayer,setCurrentPlayer,setGameArea,resetPlayer,initGame};
+    return {
+        getPlayer1,getPlayer2,
+        setPlayer1,setPlayer2,
+        playRound,
+        getCurrentPlayer,setCurrentPlayer,
+        setGameArea,resetPlayer,
+        initGame,stopGameOn
+    };
 
 })();
 
@@ -138,9 +160,6 @@ function verifyInfo(player1Name,player2Name){
     gameControler.setPlayer2(player2Name.value,'O','#86efac');
     gameControler.setGameArea(gameArea,InterFace.BoardInterface());
 }
-
-
-
 
 
 const InterFace = (function(){
@@ -205,7 +224,7 @@ const InterFace = (function(){
 
         const result = document.createElement("div");
         result.classList.add("winner-title");
-        result.textContent = `The winner is ${gameBoard.getWinner()}`;
+        
 
         const home = document.createElement("button");
         home.textContent = "Home";
@@ -223,13 +242,43 @@ const InterFace = (function(){
             gameControler.initGame();
             gameControler.setGameArea(gameArea,BoardInterface());
         });
+        result.textContent = `${resultController.getResult()}`;
+        
         gameArea.append(result);
         gameArea.append(home);
         gameArea.append(restart);
 
     }
 
-    return {InfoInterface,BoardInterface,resultInterface,updateInterface};
+    const fillRow = function(row){
+        for(let i=0;i<gameBoard.row;i++){
+            gameBoard.board[row][i].color = "#fcd34d";
+            gameBoard.boardBlocks[row][i].style.backgroundColor = gameBoard.board[row][i].color;
+        }
+    }
+
+    const fillColumn = function(col){
+        for(let i=0;i<gameBoard.row;i++){
+            gameBoard.board[i][col].color = "#fcd34d";
+            gameBoard.boardBlocks[i][col].style.backgroundColor = gameBoard.board[i][col].color;
+        }
+    }
+
+    const fillDiagonal = function(){
+        for(let i=0;i<gameBoard.row;i++){
+            gameBoard.board[i][i].color = "#fcd34d";
+            gameBoard.boardBlocks[i][i].style.backgroundColor = gameBoard.board[i][i].color;
+        }
+    }
+
+    const fillAntiDiagonal = function(){
+        let size = gameBoard.row;
+        for(let i=0;i<gameBoard.row;i++){
+            gameBoard.board[i][size-i-1].color = "#fcd34d";
+            gameBoard.boardBlocks[i][size-i-1].style.backgroundColor = gameBoard.board[i][size-i-1].color;
+        }
+    }
+    return {InfoInterface, BoardInterface, resultInterface, updateInterface, fillRow, fillColumn, fillDiagonal, fillAntiDiagonal};
 
 })();
 
@@ -244,14 +293,20 @@ const resultController = (function(){
         let color = gameBoard.board[row][col].color;
         let isWin = 1;
         let size = gameBoard.row;
+
+        //check row
         for(let i=0;i<size;i++){
             if( !gameBoard.board[row][i].checked || color!=gameBoard.board[row][i].color){
                 isWin = 0;
                 break;
             }
         }
-        if(isWin == 1)return true;
+        if(isWin == 1){
+            InterFace.fillRow(row);
+            return true;
+        }
 
+        //check column
         isWin = 1;
         for(let i=0;i<size;i++){
             if( !gameBoard.board[i][col].checked || color!=gameBoard.board[i][col].color){
@@ -260,8 +315,12 @@ const resultController = (function(){
             }
         }
 
-        if(isWin == 1)return true;
+        if(isWin == 1){
+            InterFace.fillColumn(col);
+            return true;
+        }
 
+        //check diagonal
         if(row == col){
             isWin = 1;
             for(let i=0;i<size;i++){
@@ -270,10 +329,14 @@ const resultController = (function(){
                     break;
                 }
             }
-            if(isWin == 1)return true;
+            if(isWin == 1){
+                InterFace.fillDiagonal();
+                return true;
+            }
         }
 
-        if(row == col && row == 1){
+        //check anti-diagonal
+        if( row + col == size-1){
             isWin = 1;
             for(let i=0;i<size;i++){
                 if(!gameBoard.board[i][size-i-1].checked || color!=gameBoard.board[i][size-i-1].color){
@@ -281,7 +344,10 @@ const resultController = (function(){
                     break;
                 }
             }
-            if(isWin == 1)return true;
+            if(isWin == 1){
+                InterFace.fillAntiDiagonal();
+                return true;
+            }
         }
         return false;
     }
@@ -297,6 +363,7 @@ const resultController = (function(){
                 }
             }
         }
+
         return true;
     }
 
@@ -305,7 +372,7 @@ const resultController = (function(){
             return "Its a Draw";
         }
         else{
-            return `Winner is ${winner}`;
+            return `Winner is ${winner.name}`;
         }
     }
 
