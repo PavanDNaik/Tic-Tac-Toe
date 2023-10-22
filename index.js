@@ -23,27 +23,28 @@ const getCell = function(){
 
 const gameBoard = (function(){
     const row = 3;
-    const board = getBoard(row);
+    let board = getBoard(row);
     let boardBlocks = [];
 
     function dropSign(row,col,player){
         board[row][col].sign = player.sign;
         board[row][col].checked = true;
         board[row][col].color = player.color;
+
         gameControler.setCurrentPlayer();
     }
 
     function resetBoard(){
-        board = getBoard(row);
+        for(let i=0;i<row;i++){
+            for(let j=0;j<row;j++){
+                board[i][j].sign = "";
+                board[i][j].checked = false;
+                board[i][j].color = "white";
+            }
+        }
     }
-    let winner = '';
-    function getWinner(){
-        return winner;
-    }
-    function setWinner(player){
-        winner = player;
-    }
-    return {row,board,dropSign,resetBoard,getWinner,setWinner,boardBlocks};
+    
+    return {row,board,dropSign,resetBoard,boardBlocks};
 })();
 
 
@@ -57,13 +58,25 @@ const gameControler = (function(){
 
     let player1;
     let player2;
-    let currentPlayer = player1;
+    let currentPlayer;
+
+    function initGame(){
+        currentPlayer = player1;
+
+    }
     function setPlayer1(name,sign,color){
         player1 = getPlayer(name,sign,color);
         currentPlayer = player1;
     }
+
     function setPlayer2(name,sign,color){
         player2 = getPlayer(name,sign,color);
+    }
+
+    function resetPlayer(){
+        setPlayer1("","","white");
+        setPlayer2("","","white");
+        currentPlayer = player1;
     }
 
     function getPlayer1(){
@@ -94,34 +107,49 @@ const gameControler = (function(){
     }
 
     function playRound(row,col){
-        if(gameBoard.board[row][col].checked){
+        if(gameBoard.board[row][col].checked ){
             return;
         }
         gameBoard.dropSign(row,col,getCurrentPlayer());
         InterFace.updateInterface(row,col);
+
+        if(resultController.checkForWin(row,col)){
+            console.log("win");
+        }
+        else if(resultController.checkForDraw()){
+            console.log("draw");
+        }
+
     }
 
-    return {getPlayer1,getPlayer2,setPlayer1,setPlayer2,playRound,getCurrentPlayer,setCurrentPlayer,setGameArea};
+    return {getPlayer1,getPlayer2,setPlayer1,setPlayer2,playRound,getCurrentPlayer,setCurrentPlayer,setGameArea,resetPlayer,initGame};
+
 })();
 
 
 
-
-
 function handleStart(){
+    gameControler.initGame();
     gameControler.setGameArea(gameArea,InterFace.InfoInterface());
 }
 
 function verifyInfo(player1Name,player2Name){
-    gameControler.setPlayer1(player1Name.value,'X','red');
-    gameControler.setPlayer2(player2Name.value,'O','blue');
+    gameControler.setPlayer1(player1Name.value,'X','#fca5a5');
+    gameControler.setPlayer2(player2Name.value,'O','#86efac');
     gameControler.setGameArea(gameArea,InterFace.BoardInterface());
 }
 
 
 
 
+
 const InterFace = (function(){
+
+    function updateInterface(row,col){
+        gameBoard.boardBlocks[row][col].style.background = `url(images/${gameBoard.board[row][col].sign}.svg)`;
+        gameBoard.boardBlocks[row][col].style.backgroundColor = gameBoard.board[row][col].color;
+    }
+
     const InfoInterface = function(){
         const player1Name = document.createElement("input");
         player1Name.placeholder = "Player1 name";
@@ -172,20 +200,114 @@ const InterFace = (function(){
         return gameLayout;
     };
 
+
     const resultInterface = function(){
+
         const result = document.createElement("div");
-        result.textContent = `The winner is ${gameBoard.getWinner}`;
+        result.classList.add("winner-title");
+        result.textContent = `The winner is ${gameBoard.getWinner()}`;
+
         const home = document.createElement("button");
-        home.addEventListener("click",handleStart);
-        const restart = document.createElement("button");
-        restart.addEventListener("click",()=>{
-            gameControler.setGameArea(gameArea,BoardInterface);
+        home.textContent = "Home";
+        home.addEventListener("click",()=>{
+            gameControler.initGame();
+            gameBoard.resetBoard();
+            gameControler.resetPlayer();
+            handleStart();
         });
+
+        const restart = document.createElement("button");
+        restart.textContent = "rematch";
+        restart.addEventListener("click",()=>{
+            gameBoard.resetBoard();
+            gameControler.initGame();
+            gameControler.setGameArea(gameArea,BoardInterface());
+        });
+        gameArea.append(result);
+        gameArea.append(home);
+        gameArea.append(restart);
+
     }
 
-    function updateInterface(row,col){
-        gameBoard.boardBlocks[row][col].style.background = `url(images/${gameBoard.board[row][col].sign}.svg)`;
-    }
     return {InfoInterface,BoardInterface,resultInterface,updateInterface};
 
+})();
+
+const resultController = (function(){
+    let winner = undefined;
+
+    function setWinner(player){
+        winner = player;
+    }
+
+    function checkForWin(row,col){
+        let color = gameBoard.board[row][col].color;
+        let isWin = 1;
+        let size = gameBoard.row;
+        for(let i=0;i<size;i++){
+            if( !gameBoard.board[row][i].checked || color!=gameBoard.board[row][i].color){
+                isWin = 0;
+                break;
+            }
+        }
+        if(isWin == 1)return true;
+
+        isWin = 1;
+        for(let i=0;i<size;i++){
+            if( !gameBoard.board[i][col].checked || color!=gameBoard.board[i][col].color){
+                isWin = 0;
+                break;
+            }
+        }
+
+        if(isWin == 1)return true;
+
+        if(row == col){
+            isWin = 1;
+            for(let i=0;i<size;i++){
+                if(!gameBoard.board[i][i].checked || color!=gameBoard.board[i][i].color){
+                    isWin = 0;
+                    break;
+                }
+            }
+            if(isWin == 1)return true;
+        }
+
+        if(row == col && row == 1){
+            isWin = 1;
+            for(let i=0;i<size;i++){
+                if(!gameBoard.board[i][size-i-1].checked || color!=gameBoard.board[i][size-i-1].color){
+                    isWin = 0;
+                    break;
+                }
+            }
+            if(isWin == 1)return true;
+        }
+        return false;
+    }
+
+
+
+    function checkForDraw(){
+
+        for(let i=0;i<gameBoard.row;i++){
+            for(let j=0;j<gameBoard.row;j++){
+                if(!gameBoard.board[i][j].checked){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function getResult(){
+        if(winner == undefined){
+            return "Its a Draw";
+        }
+        else{
+            return `Winner is ${winner}`;
+        }
+    }
+
+    return {setWinner,checkForDraw,checkForWin,getResult};
 })();
