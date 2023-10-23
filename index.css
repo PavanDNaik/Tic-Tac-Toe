@@ -1,5 +1,15 @@
+*{
+    box-sizing: border-box;
+}
+
+html,body{
+    height: 100%;
+    width: 100%;
+}
+
 body{
     min-height: 100vh;
+    
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -89,7 +99,7 @@ ul li{
     border: none;
     font-size: 25px;
     height: 33px;
-    width: 250px;
+    width: 25vw;
     border-radius: 15px;
     padding: 0 20px;
 }
@@ -100,6 +110,60 @@ ul li{
 
 .name-input:active{
     outline: none;
+}
+
+.second-player-info{
+    border-top: 1px solid #052e16;
+    height: 120px;
+    width: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.switch{
+    height: 4vw;
+    width: 5vw;
+    min-width: 4vh;
+    min-height: 4vh;
+    border: none;
+    background-color: #4ade80;
+    border-radius: 15px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+}
+
+.select-bot{
+    background-color: #bbf7d0;
+    outline: none;
+    border: none;
+    font-size: 25px;
+    height: 33px;
+    width: 25vw;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.unclickable{
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+.highlight{
+    transform: scale(1.1);
+    background-color: #86efac;
+}
+
+.switch-left{
+    background-image: url(images/player.svg);
+}
+.switch-right{
+    
+    background-image: url(images/bot.svg);
 }
 
 .vs-info{
@@ -239,5 +303,10 @@ header{
     }
     ul li{
         font-size: 15px;
+    }
+
+    .name-input{
+        padding: 0 12px;
+        font-size: 10px;
     }
 }
