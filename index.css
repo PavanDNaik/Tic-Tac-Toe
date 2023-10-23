@@ -41,12 +41,20 @@ body{
 }
 
 div.board-cell{
-    border: 1px solid black;
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
 }
 
+.left-right-border{
+    border-left: 4px solid #052e16;
+    border-right: 4px solid #052e16;
+}
+
+.top-bottom-border{
+    border-top: 4px solid #052e16;
+    border-bottom: 4px solid #052e16;
+}
 .sign-images{
     height: 100%;
 }
@@ -119,6 +127,7 @@ ul li{
     display: flex;
     align-items: center;
     justify-content: space-evenly;
+    gap: 10px;
 }
 
 .switch{

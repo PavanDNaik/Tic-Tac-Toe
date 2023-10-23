@@ -277,6 +277,12 @@ const InterFace = (function(){
             for(let j=0;j<gameBoard.row;j++){
                 gameBoard.boardBlocks[i][j] = document.createElement("div");
                 gameBoard.boardBlocks[i][j].classList.add("board-cell");
+                if(j==1){
+                    gameBoard.boardBlocks[i][j].classList.add("left-right-border");
+                }
+                if(i==1){
+                    gameBoard.boardBlocks[i][j].classList.add("top-bottom-border");
+                }
                 gameBoard.boardBlocks[i][j].addEventListener("click",()=>{
                     gameControler.playRound(i,j);
                 });
