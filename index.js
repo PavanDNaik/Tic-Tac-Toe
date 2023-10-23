@@ -44,8 +44,12 @@ const gameBoard = (function(){
             }
         }
     }
+
+    function getCurrentBoard(){
+        return board;
+    }
     
-    return {row,board,dropSign,resetBoard,boardBlocks};
+    return {row,board,dropSign,resetBoard,getCurrentBoard,boardBlocks};
 
 })();
 
@@ -63,6 +67,7 @@ const gameControler = (function(){
     let player2;
     let currentPlayer;
 
+    let allBots = ["easy"];
     function initGame(){
         currentPlayer = player1;
         gameOne = true;
@@ -101,6 +106,11 @@ const gameControler = (function(){
     function setCurrentPlayer(){
         if(currentPlayer == player1){
             currentPlayer = player2;
+            if(player2.name == "easy" || player2.name == "medium" || player2.name == "hard"){
+                let botsPlay = gameBots.getBotsPlay(player2.name);
+                if(botsPlay == undefined)return;
+                playRound(botsPlay[0],botsPlay[1]);
+            }
         }
         else{
             currentPlayer = player1;
@@ -140,10 +150,10 @@ const gameControler = (function(){
     return {
         getPlayer1,getPlayer2,
         setPlayer1,setPlayer2,
-        playRound,
-        getCurrentPlayer,setCurrentPlayer,
+        playRound,getCurrentPlayer,setCurrentPlayer,
         setGameArea,resetPlayer,
-        initGame,stopGameOn
+        initGame,stopGameOn,
+        allBots
     };
 
 })();
@@ -154,13 +164,23 @@ function handleStart(){
     gameControler.setGameArea(gameArea,InterFace.InfoInterface());
 }
 
-function verifyInfo(player1Name,player2Name){
-    if(player1Name.value == "" || player2Name.value == ""){
-        alert("Please Enter Your names!!");
+function verifyInfo(player1Name,player2Name,selectBot){
+    if(player1Name.value == ""){
+        alert("Please Enter name of player 1!!");
         return;
     }
+    if(player2Name.value == ""){
+        if(selectBot.value == ""){
+            alert("Please chose either a bot or chose second player!!");
+            return;
+        }
+        gameControler.setPlayer2(selectBot.value,'O','#86efac');
+    }
+    else{
+        gameControler.setPlayer2(player2Name.value,'O','#86efac');
+    }
+    
     gameControler.setPlayer1(player1Name.value,'X','#fca5a5');
-    gameControler.setPlayer2(player2Name.value,'O','#86efac');
     gameControler.setGameArea(gameArea,InterFace.BoardInterface());
 }
 
@@ -173,30 +193,72 @@ const InterFace = (function(){
     }
 
     const InfoInterface = function(){
+        //outer div
         const form = document.createElement("div");
         form.classList.add("info-form");
         const player1Name = document.createElement("input");
+
+        //player1Info
         player1Name.placeholder = "Player1 name";
         player1Name.classList.add("name-input");
-    
+        
+        //player2Info
         const player2Name = document.createElement("input");
         player2Name.placeholder = "Player2 name";
         player2Name.classList.add("name-input");
-    
+        player2Name.classList.add("highlight");
+
+        const swicthButton = document.createElement("button");
+        swicthButton.classList.add("switch");
+        swicthButton.classList.add("switch-right");
+        
+
+        //botInfo
+        const selectBot = document.createElement("select");
+        selectBot.classList.add("select-bot");
+        selectBot.classList.add("unclickable");
+        selectBot.append(document.createElement("option"));
+
+        gameControler.allBots.forEach( function(bot){
+            const option = document.createElement("option");
+            option.textContent = bot;
+            selectBot.append(option);
+        });
+
+        const secondPlayerDiv = document.createElement("div");
+        secondPlayerDiv.classList.add("second-player-info");
+        secondPlayerDiv.appendChild(player2Name);
+        secondPlayerDiv.appendChild(swicthButton);
+        secondPlayerDiv.appendChild(selectBot);
+
+        //submit
         const next = document.createElement("button");
         next.textContent = "NEXT";
         next.id = "info-submit";
         next.classList.add("info-submit");
     
+        //append everything
         const infoDiv = document.createElement("div");
         form.classList.add("game");
         form.appendChild(player1Name);
-        form.appendChild(player2Name);
+        form.appendChild(secondPlayerDiv);
         form.appendChild(next);
         infoDiv.appendChild(form);
     
+        swicthButton.addEventListener("click",()=>{handleSwith(swicthButton,player2Name,selectBot)});
+
+        const handleSwith = function (swicthButton,player2Name,selectBot){
+            player2Name.classList.toggle("unclickable");
+            selectBot.classList.toggle("unclickable");
+    
+            player2Name.classList.toggle("highlight");
+            selectBot.classList.toggle("highlight");
+    
+            swicthButton.classList.toggle("switch-right");
+            swicthButton.classList.toggle("switch-left");
+        };
         next.addEventListener("click",()=>{
-            verifyInfo(player1Name,player2Name);
+            verifyInfo(player1Name,player2Name,selectBot);
         });
         return infoDiv;
     };
@@ -215,6 +277,12 @@ const InterFace = (function(){
             for(let j=0;j<gameBoard.row;j++){
                 gameBoard.boardBlocks[i][j] = document.createElement("div");
                 gameBoard.boardBlocks[i][j].classList.add("board-cell");
+                if(j==1){
+                    gameBoard.boardBlocks[i][j].classList.add("left-right-border");
+                }
+                if(i==1){
+                    gameBoard.boardBlocks[i][j].classList.add("top-bottom-border");
+                }
                 gameBoard.boardBlocks[i][j].addEventListener("click",()=>{
                     gameControler.playRound(i,j);
                 });
@@ -225,6 +293,7 @@ const InterFace = (function(){
         gameLayout.appendChild(curBoard);
         return gameLayout;
     };
+
 
 
     const resultInterface = function(){
@@ -289,7 +358,10 @@ const InterFace = (function(){
             gameBoard.boardBlocks[i][size-i-1].style.backgroundColor = gameBoard.board[i][size-i-1].color;
         }
     }
-    return {InfoInterface, BoardInterface, resultInterface, updateInterface, fillRow, fillColumn, fillDiagonal, fillAntiDiagonal};
+    return {
+            InfoInterface, BoardInterface, resultInterface, updateInterface, 
+            fillRow, fillColumn, fillDiagonal, fillAntiDiagonal
+        };
 
 })();
 
@@ -382,10 +454,48 @@ const resultController = (function(){
         if(winner == undefined){
             return "Its a Draw";
         }
+        else if(winner.name == "easy" || winner.name == "medium" || winner.name == "hard"){
+            return `${winner.name.toUpperCase()} bot won the match!`;
+        }
         else{
-            return `Winner is ${winner.name}`;
+            return `Winner is ${winner.name.toUpperCase()}`;
         }
     }
 
     return {setWinner,checkForDraw,checkForWin,getResult};
+})();
+
+
+const gameBots = (function(){
+
+    
+    const getUncheckedElement = function(){
+        let uncheckedElements = [];
+        let board = gameBoard.getCurrentBoard();
+        for(let i=0;i<gameBoard.row;i++){
+            for(let j=0;j<gameBoard.row;j++){
+                if(!board[i][j].checked){
+                    uncheckedElements.push([i,j]);
+                }
+            }
+        }
+        return uncheckedElements;
+    }
+    
+    const easyBot = function(board){
+        let uncheckedElements = getUncheckedElement();
+        if(uncheckedElements.length == 0)return undefined;
+        return uncheckedElements[Math.round(Math.random()*(uncheckedElements.length-1))];
+    }
+
+    const getBotsPlay = function(level){
+        if(level == "easy"){
+            return easyBot(gameBoard.getCurrentBoard());
+        }
+    }
+
+    return {
+        easyBot,
+        getBotsPlay,
+    };
 })();
